@@ -1,0 +1,43 @@
+
+{
+    "bridge": {
+        "name": "Homebridge2",
+        "username": "CC:22:3D:E3:CE:32",
+        "port": 51826,
+        "pin": "031-45-155"
+    },
+    
+    "description": "This has some fake accessories",
+
+    "accessories": [
+        {
+            "accessory":      "FakeBulb",
+            "name":           "Test lamp",
+            "bulb_name":      "Lamp 1"
+        },
+    {
+        "accessory": "HTTP-RGB",
+        "name": "RGB Led Strip",
+
+        "switch": {
+            "status": "http://10.0.1.200/status",
+            "powerOn": "http://10.0.1.200/?WR-4000-4000-4000-4000",
+            "powerOff": "http://10.0.1.200/?WR-600-600-600-600"
+        },
+
+        "brightness": {
+            "status": "http://10.0.1.200/brightness",
+            "url": "http://10.0.1.200/%s"
+        },
+
+        "color": {
+            "status": "http://10.0.1.200/set",
+            "url": "http://10.0.1.200/%s",
+            "brightness": true
+        }
+    }
+
+    ],
+
+    "platforms": []
+}
