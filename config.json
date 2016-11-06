@@ -10,11 +10,6 @@
     "description": "This has some fake accessories",
 
     "accessories": [
-        {
-            "accessory":      "FakeBulb",
-            "name":           "Test lamp",
-            "bulb_name":      "Lamp 1"
-        },
     {
         "accessory": "HTTP-RGB",
         "name": "RGB Led Strip",
