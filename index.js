@@ -77,7 +77,7 @@ function HTTP_RGB(log, config) {
         this.color.set_url             = config.color.url                 || this.color.status;
         this.color.http_method         = config.color.http_method         || this.http_method;
         this.color.brightness          = config.color.brightness;
-        this.cache.hue = 0;
+        //this.cache.hue = 0;
         this.cache.saturation = 0;
     } else {
         this.color = false;
@@ -135,11 +135,11 @@ HTTP_RGB.prototype = {
                 }
                 // Handle color
                 if (this.color) {
-                    this.log('... Ted Turnerizing(tm)');
-                    lightbulbService
-                        .addCharacteristic(new Characteristic.Hue())
-                        .on('get', this.getHue.bind(this))
-                        .on('set', this.setHue.bind(this));
+                    this.log('... adding Temperature');
+                    //lightbulbService
+                    //    .addCharacteristic(new Characteristic.Hue())
+                    //    .on('get', this.getHue.bind(this))
+                    //    .on('set', this.setHue.bind(this));
 
                     lightbulbService
                         .addCharacteristic(new Characteristic.Saturation())
@@ -148,76 +148,6 @@ HTTP_RGB.prototype = {
                 }
 
                 return [lightbulbService];
-
-            /*
-               These are included here as an example of what other
-               HomeKit-compatible devices can be.
-            */
-            /*
-            case 'Switch':
-                this.log('creating Switch');
-                var switchService = new Service.Switch(this.name);
-
-                if (this.switch.powerOn.status) {
-                    switchService
-                        .getCharacteristic(Characteristic.On)
-                        .on('get', this.getPowerState.bind(this))
-                        .on('set', this.setPowerState.bind(this));
-                } else {
-                    switchService
-                        .getCharacteristic(Characteristic.On)
-                        .on('set', this.setPowerState.bind(this));
-                }
-                return [switchService];
-
-            case 'Lock':
-                var lockService = new Service.LockMechanism(this.name);
-
-                lockService
-                    .getCharacteristic(Characteristic.LockCurrent)
-                    .on('get', this.getLockCurrent.bind(this))
-                    .on('set', this.setLockCurrent.bind(this));
-
-                lockService
-                    .getCharacteristic(Characteristic.LockTarget)
-                    .on('get', this.getLockTarget.bind(this))
-                    .on('set', this.setLockTarget.bind(this));
-
-                return [lockService];
-
-            case 'Smoke':
-                var smokeService = new Service.SmokeSensor(this.name);
-
-                smokeService
-                    .getCharacteristic(Characteristic.SmokeDetected)
-                    .on('set', this.getSmokeDetected.bind(this));
-
-                return [smokeService];
-
-            case 'Motion':
-                var motionService = new Service.MotionSensor(this.name);
-
-                motionService
-                    .getCharacteristic(Characteristic.MotionDetected)
-                    .on('get', this.getMotionDetected.bind(this));
-
-                return [motionService];
-
-            case 'Temp':
-                var temperatureService = new Service.TemperatureSensor(this.name);
-
-                temperatureService
-                    .getCharacteristic(Characteristic.CurrentTemperature)
-                    .on('get', this.getTemperature.bind(this));
-
-                var humidityService = new Service.HumiditySensor(this.name);
-                humidityService
-                    .getCharacteristic(Characteristic.CurrentRelativeHumidity)
-                    .on('get', this.getHumidity.bind(this));
-
-                return [temperatureService, humidityService];
-
-            */
 
             default:
                 return [informationService];
@@ -351,51 +281,51 @@ HTTP_RGB.prototype = {
      *
      * @param {function} callback The callback that handles the response.
      */
-    getHue: function(callback) {
-        if (this.color && typeof this.color.status !== 'string') {
-            this.log.warn("Ignoring request; problem with 'color' variables.");
-            callback(new Error("There was a problem parsing the 'color' section of your configuration."));
-            return;
-        }
-        var url = this.color.status;
+    //getHue: function(callback) {
+    //    if (this.color && typeof this.color.status !== 'string') {
+    //        this.log.warn("Ignoring request; problem with 'color' variables.");
+    //        callback(new Error("There was a problem parsing the 'color' section of your configuration."));
+    //        return;
+    //    }
+    //    var url = this.color.status;
 
-        this._httpRequest(url, '', 'GET', function(error, response, responseBody) {
-            if (error) {
-                this.log('... getHue() failed: %s', error.message);
-                callback(error);
-            } else {
-                var rgb = responseBody;
-                var levels = this._rgbToHsl(
-                    parseInt(rgb.substr(0,2),16),
-                    parseInt(rgb.substr(2,2),16),
-                    parseInt(rgb.substr(4,2),16)
-                );
+    //    this._httpRequest(url, '', 'GET', function(error, response, responseBody) {
+    //        if (error) {
+    //            this.log('... getHue() failed: %s', error.message);
+    //            callback(error);
+    //        } else {
+    //            var rgb = responseBody;
+    //            var levels = this._rgbToHsl(
+    //                parseInt(rgb.substr(0,2),16),
+    //                parseInt(rgb.substr(2,2),16),
+    //                parseInt(rgb.substr(4,2),16)
+    //            );
 
-                var hue = levels[0];
+    //            var hue = levels[0];
 
-                this.log('... hue is currently %s', hue);
-                this.cache.hue = hue;
-                callback(null, hue);
-            }
-        }.bind(this));
-    },
+    //            this.log('... hue is currently %s', hue);
+    //            this.cache.hue = hue;
+    //            callback(null, hue);
+    //        }
+    //    }.bind(this));
+    //},
 
     /**
      * Sets the hue of the lightbulb.
      *
      * @param {function} callback The callback that handles the response.
      */
-    setHue: function(level, callback) {
-        if (this.color && typeof this.color.set_url !== 'string') {
-            this.log.warn("Ignoring request; problem with 'color' variables.");
-            callback(new Error("There was a problem parsing the 'color' section of your configuration."));
-            return;
-        }
-        this.log('Caching Hue as %s ...', level);
-        this.cache.hue = level;
+    //setHue: function(level, callback) {
+    //    if (this.color && typeof this.color.set_url !== 'string') {
+    //        this.log.warn("Ignoring request; problem with 'color' variables.");
+    //        callback(new Error("There was a problem parsing the 'color' section of your configuration."));
+    //        return;
+    //    }
+    //    this.log('Caching Hue as %s ...', level);
+    //    this.cache.hue = level;
 
-        this._setRGB(callback);
-    },
+    //    this._setRGB(callback);
+    //},
 
     /**
      * Gets the saturation of lightbulb.

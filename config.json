@@ -12,7 +12,7 @@
     "accessories": [
     {
         "accessory": "HTTP-RGB",
-        "name": "RGB Led Strip",
+        "name": "Circadian Lamp",
 
         "switch": {
             "status": "http://10.0.1.200/status",

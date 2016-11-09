@@ -1,33 +1,27 @@
 {
-  "name": "homebridge-better-http-rgb",
-  "version": "1.0.0",
-  "description": "Homebridge plugin to control a web-based RGB device.",
+  "name": "homebridge-circadian",
+  "version": "0.0.1",
+  "description": "Homebridge plugin to control a circadian lamp.",
   "license": "ISC",
   "keywords": [
-    "homebridge-plugin"
+    ""
   ],
   "engines": {
     "node": ">=0.12.0",
     "homebridge": ">=0.2.0"
   },
   "author": {
-    "name": "Justin J. Novack",
-    "email": "jnovack@gmail.com"
   },
   "contributors": [
     {
-      "name": "Adrian Rudman"
     }
   ],
   "repository": {
-    "type": "git",
-    "url": "git://github.com/jnovack/homebridge-better-http-rgb.git"
-  },
+    },
   "scripts": {
     "lint": "grunt lint",
     "test": "mocha test/simple.js",
-    "prepublish": "grunt lint && mocha"
-  },
+    "p},
   "preferGlobal": true,
   "dependencies": {
     "request": "^2.65.0"
