@@ -1,6 +1,6 @@
 {
   "name": "homebridge-circadian",
-  "version": "0.0.1",
+  "version": "0.1.0-0",
   "description": "Supports RGB http(s) devices on the HomeBridge Platform and provides a readable callback for getting and setting the following characteristics to Homekit:",
   "main": "index.js",
   "directories": {
