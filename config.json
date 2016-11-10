@@ -10,14 +10,9 @@
     "description": "This has some fake accessories",
 
     "accessories": [
-        {
-            "accessory":      "FakeBulb",
-            "name":           "Test lamp",
-            "bulb_name":      "Lamp 1"
-        },
     {
         "accessory": "HTTP-RGB",
-        "name": "RGB Led Strip",
+        "name": "Circadian Lamp",
 
         "switch": {
             "status": "http://10.0.1.200/status",

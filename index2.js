@@ -9,7 +9,7 @@ var request = require('request');
 module.exports = function(homebridge){
     Service = homebridge.hap.Service;
     Characteristic = homebridge.hap.Characteristic;
-    homebridge.registerAccessory('homebridge-better-http-rgb', 'HTTP-RGB', HTTP_RGB);
+    homebridge.registerAccessory('homebridge-better-http-rgb', 'HTTP-RGB', HTTP_CIRC);
 };
 
 /**
@@ -20,7 +20,7 @@ module.exports = function(homebridge){
  * @param {function} log Logging function
  * @param {object} config Your configuration object
  */
-function HTTP_RGB(log, config) {
+function HTTP_CIRC(log, config) {
 
     // The logging function is required if you want your function to output
     // any information to the console in a controlled and organized manner.
@@ -35,6 +35,7 @@ function HTTP_RGB(log, config) {
 
     // Handle the basic on/off
     this.switch = { powerOn: {}, powerOff: {} };
+
     if (typeof config.switch === 'object') {
         this.switch.status                 = config.switch.status;
 
@@ -55,7 +56,7 @@ function HTTP_RGB(log, config) {
         }
     }
 
-    // Local caching of HSB color space for RGB callback
+    // Local caching of color temp and brightness
     this.cache = {};
 
     // Handle brightness
@@ -77,7 +78,6 @@ function HTTP_RGB(log, config) {
         this.color.set_url             = config.color.url                 || this.color.status;
         this.color.http_method         = config.color.http_method         || this.http_method;
         this.color.brightness          = config.color.brightness;
-        //this.cache.hue = 0;
         this.cache.saturation = 0;
     } else {
         this.color = false;
@@ -89,9 +89,9 @@ function HTTP_RGB(log, config) {
 
 /**
  *
- * @augments HTTP_RGB
+ * @augments HTTP_CIRC
  */
-HTTP_RGB.prototype = {
+HTTP_CIRC.prototype = {
 
     /** Required Functions **/
     identify: function(callback) {
@@ -136,10 +136,6 @@ HTTP_RGB.prototype = {
                 // Handle color
                 if (this.color) {
                     this.log('... adding Temperature');
-                    //lightbulbService
-                    //    .addCharacteristic(new Characteristic.Hue())
-                    //    .on('get', this.getHue.bind(this))
-                    //    .on('set', this.setHue.bind(this));
 
                     lightbulbService
                         .addCharacteristic(new Characteristic.Saturation())
@@ -272,60 +268,9 @@ HTTP_RGB.prototype = {
                 }
             }.bind(this));
         } else {
-            this._setRGB(callback);
+            this._setTempBrightness(callback);
         }
     },
-
-    /**
-     * Gets the hue of lightbulb.
-     *
-     * @param {function} callback The callback that handles the response.
-     */
-    //getHue: function(callback) {
-    //    if (this.color && typeof this.color.status !== 'string') {
-    //        this.log.warn("Ignoring request; problem with 'color' variables.");
-    //        callback(new Error("There was a problem parsing the 'color' section of your configuration."));
-    //        return;
-    //    }
-    //    var url = this.color.status;
-
-    //    this._httpRequest(url, '', 'GET', function(error, response, responseBody) {
-    //        if (error) {
-    //            this.log('... getHue() failed: %s', error.message);
-    //            callback(error);
-    //        } else {
-    //            var rgb = responseBody;
-    //            var levels = this._rgbToHsl(
-    //                parseInt(rgb.substr(0,2),16),
-    //                parseInt(rgb.substr(2,2),16),
-    //                parseInt(rgb.substr(4,2),16)
-    //            );
-
-    //            var hue = levels[0];
-
-    //            this.log('... hue is currently %s', hue);
-    //            this.cache.hue = hue;
-    //            callback(null, hue);
-    //        }
-    //    }.bind(this));
-    //},
-
-    /**
-     * Sets the hue of the lightbulb.
-     *
-     * @param {function} callback The callback that handles the response.
-     */
-    //setHue: function(level, callback) {
-    //    if (this.color && typeof this.color.set_url !== 'string') {
-    //        this.log.warn("Ignoring request; problem with 'color' variables.");
-    //        callback(new Error("There was a problem parsing the 'color' section of your configuration."));
-    //        return;
-    //    }
-    //    this.log('Caching Hue as %s ...', level);
-    //    this.cache.hue = level;
-
-    //    this._setRGB(callback);
-    //},
 
     /**
      * Gets the saturation of lightbulb.
@@ -376,7 +321,7 @@ HTTP_RGB.prototype = {
         this.log('Caching Saturation as %s ...', level);
         this.cache.saturation = level;
 
-        this._setRGB(callback);
+        this._setTempBrightness(callback);
     },
 
     /**
@@ -384,22 +329,25 @@ HTTP_RGB.prototype = {
      *
      * @param {function} callback The callback that handles the response.
      */
-    _setRGB: function(callback) {
-        var rgb = this._hsvToRgb(this.cache.hue, this.cache.saturation, this.cache.brightness);
-        var r = this._decToHex(rgb.r);
-        var g = this._decToHex(rgb.g);
-        var b = this._decToHex(rgb.b);
+    _setTempBrightness: function(callback) {
+        
+        this.cache.saturation, this.cache.brightness
 
-        var url = this.color.set_url.replace('%s', r + g + b);
+        coolWhite = (4000 - (40*colorTemp))*brightness;
+        warmWhite = 4000*brightness;
 
-        this.log('_setRGB converting H:%s S:%s B:%s to RGB:%s ...', this.cache.hue, this.cache.saturation, this.cache.brightness, r + g + b);
+
+
+        var url = this.color.set_url.replace('%s', 'WR-' + r + '-' + g + '-' + b + '-' + c);
+
+        this.log('_setTempBrightness converting S:%s B:%s to RGB:%s ...', this.cache.saturation, this.cache.brightness, r + g + b);
 
         this._httpRequest(url, '', this.color.http_method, function(error, response, body) {
             if (error) {
-                this.log('... _setRGB() failed: %s', error);
+                this.log('... _setTempBrightness() failed: %s', error);
                 callback(error);
             } else {
-                this.log('... _setRGB() successfully set to #%s', r + g + b);
+                this.log('... _setTempBrightness() successfully set to #%s', r + g + b);
                 callback();
             }
         }.bind(this));
@@ -428,97 +376,5 @@ HTTP_RGB.prototype = {
         function(error, response, body) {
             callback(error, response, body);
         });
-    },
-
-    /**
-     * Converts an HSV color value to RGB. Conversion formula
-     * adapted from http://stackoverflow.com/a/17243070/2061684
-     * Assumes h in [0..360], and s and l in [0..100] and
-     * returns r, g, and b in [0..255].
-     *
-     * @param   {Number}  h       The hue
-     * @param   {Number}  s       The saturation
-     * @param   {Number}  l       The lightness
-     * @return  {Array}           The RGB representation
-     */
-    _hsvToRgb: function(h, s, v) {
-        var r, g, b, i, f, p, q, t;
-
-        h /= 360;
-        s /= 100;
-        v /= 100;
-
-        i = Math.floor(h * 6);
-        f = h * 6 - i;
-        p = v * (1 - s);
-        q = v * (1 - f * s);
-        t = v * (1 - (1 - f) * s);
-        switch (i % 6) {
-            case 0: r = v; g = t; b = p; break;
-            case 1: r = q; g = v; b = p; break;
-            case 2: r = p; g = v; b = t; break;
-            case 3: r = p; g = q; b = v; break;
-            case 4: r = t; g = p; b = v; break;
-            case 5: r = v; g = p; b = q; break;
-        }
-        var rgb = { r: Math.round(r * 255), g: Math.round(g * 255), b: Math.round(b * 255) };
-        return rgb;
-    },
-
-    /**
-     * Converts an RGB color value to HSL. Conversion formula
-     * adapted from http://en.wikipedia.org/wiki/HSL_color_space.
-     * Assumes r, g, and b are in [0..255] and
-     * returns h in [0..360], and s and l in [0..100].
-     *
-     * @param   {Number}  r       The red color value
-     * @param   {Number}  g       The green color value
-     * @param   {Number}  b       The blue color value
-     * @return  {Array}           The HSL representation
-     */
-    _rgbToHsl: function(r, g, b){
-        r /= 255;
-        g /= 255;
-        b /= 255;
-        var max = Math.max(r, g, b), min = Math.min(r, g, b);
-        var h, s, l = (max + min) / 2;
-
-        if(max == min){
-            h = s = 0; // achromatic
-        }else{
-            var d = max - min;
-            s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-            switch(max){
-                case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-                case g: h = (b - r) / d + 2; break;
-                case b: h = (r - g) / d + 4; break;
-            }
-            h /= 6;
-        }
-
-        h *= 360; // return degrees [0..360]
-        s *= 100; // return percent [0..100]
-        l *= 100; // return percent [0..100]
-        return [parseInt(h), parseInt(s), parseInt(l)];
-    },
-
-    /**
-     * Converts a decimal number into a hexidecimal string, with optional
-     * padding (default 2 characters).
-     *
-     * @param   {Number} d        Decimal number
-     * @param   {String} padding  Padding for the string
-     * @return  {String}          '0' padded hexidecimal number
-     */
-    _decToHex: function(d, padding) {
-        var hex = Number(d).toString(16);
-        padding = typeof (padding) === 'undefined' || padding === null ? padding = 2 : padding;
-
-        while (hex.length < padding) {
-            hex = '0' + hex;
-        }
-
-        return hex;
     }
-
 };
